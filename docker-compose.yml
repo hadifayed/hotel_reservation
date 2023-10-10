@@ -1,0 +1,26 @@
+version: '3'
+volumes:
+  mysql-data:
+    driver: local
+services:
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+    command: mysqld --sql_mode=""
+  web:
+    platform: linux/amd64
+    build: .
+    command: /start_app.sh
+    volumes:
+      - .:/myapp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
