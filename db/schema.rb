@@ -14,8 +14,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_11_042715) do
   create_table "room_reservations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "room_id", null: false
     t.bigint "user_id", null: false
-    t.datetime "check_in", null: false
-    t.datetime "check_out", null: false
+    t.date "check_in", null: false
+    t.date "check_out", null: false
     t.integer "status", default: 1, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
