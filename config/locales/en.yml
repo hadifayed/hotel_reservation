@@ -28,4 +28,19 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  activerecord:
+    attributes:
+      room_reservation:
+        check_out: 'Check-out'
+        check_in: 'Check-in'
+    errors:
+      models:
+        room_reservation:
+          attributes:
+            check_out:
+              past_error: 'can not be in the past'
+              after_check_in: 'must be after the check-in'
+            check_in:
+              past_error: 'can not be in the past'
+            room:
+              not_available: 'is not available in the requested period'
