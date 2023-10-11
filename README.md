@@ -1,24 +1,54 @@
-# README
+Project Scope:
+  - It is needed to create an API for simple hotel reservation app that allows users to
+    reserve rooms when these rooms are available
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Project features:
+  1. Registration
+      - User should be able to register with name, email and password
+  2. Sign in
+      - User should be able to sign in with previously registered email and password.
+  3. Listing all rooms
+  4. create room
+  5. update specific room details
+  6. create reservation for a specific room for a definite period of time
+  7. show all reservation in a specific period of time
+  8. cancel reservation
 
-Things you may want to cover:
+Steps to set up the project:
+  - run `docker-compose up --build` to start the app
 
-* Ruby version
+List of endpoint to use the app:
+  1. registration  POST /auth
+      request body {name: 'hadi', email: 'hadi@hadi.com', password: 'hadi1234'}
 
-* System dependencies
+  2. sign-in  POST /auth/sign_in (this method generates the headers required to access other endpoint)
+      request body {email: 'hadi@hadi.com', password: 'hadi1234'}
+      this request return in the headers these attributes which are required to be sent in the headers of any request
+      that requires authentication [access-token, token-type, client, uid, expiry]
 
-* Configuration
+  3. List rooms GET /rooms requires authentication using request num 2
+      request headers {access-token: '', token-type: '', client: '', uid: '', expiry: ''}
 
-* Database creation
+  4. create room POST /rooms requires authentication using request num 2
+      request headers {access-token: '', token-type: '', client: '', uid: '', expiry: ''}
+      request body { room: { price_per_night: DECIMAL, capacity: INTEGER. description: TEXT } }
 
-* Database initialization
+  5. update room (PATCH/PUT) /rooms/:room_id requires authentication using request num 2
+      request headers {access-token: '', token-type: '', client: '', uid: '', expiry: ''}
+      request body { room: { price_per_night: DECIMAL, capacity: INTEGER. description: TEXT } }
 
-* How to run the test suite
+  6. create room_reservation POST /room_reservations requires authentication using request num 2
+      request headers {access-token: '', token-type: '', client: '', uid: '', expiry: ''}
+      request body { room_reservation: { check_in: DATE, check_out: DATE. room_id: ROOM_REFERENCE } }
 
-* Services (job queues, cache servers, search engines, etc.)
+  7. list room_reservations for a specific period GET /room_reservations/within_range?room_reservation[check_in]=DATE&room_reservation[check_out]=date requires authentication using request num 2
+      request headers {access-token: '', token-type: '', client: '', uid: '', expiry: ''}
 
-* Deployment instructions
+  8. cancel room_reservation POST /room_reservations/:room_id/cancel requires authentication using request num 2
+      request body { room: { price_per_night: DECIMAL, capacity: INTEGER. description: TEXT } }
 
-* ...
+Possible improvements :
+  1. add specs
+  2. use swagger to add api documentation
+  3. Add roles to user and allow only user with admin role to add and update rooms
+  4. add better logging
