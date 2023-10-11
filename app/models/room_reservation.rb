@@ -9,6 +9,8 @@ class RoomReservation < ApplicationRecord
   validate :check_out_is_after_check_in
   validate :room_is_available
 
+  scope :within_range, ->(range) { where(check_in: range).or(where(check_out: range)) }
+
   private
 
   def check_in_and_check_out_are_not_in_the_past
@@ -30,6 +32,8 @@ class RoomReservation < ApplicationRecord
     return if check_in.blank? || check_out.blank?
 
     RoomReservation.pending.where(room_id: room_id).each do |reservation|
+      next if reservation.id == id
+
       check_in_within_reserved_period = (reservation.check_in..reservation.check_out) === check_in
       check_out_within_reserved_period = (reservation.check_in..reservation.check_out) === check_out
       if check_in_within_reserved_period || check_out_within_reserved_period
