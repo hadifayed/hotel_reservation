@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_11_042715) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_13_141724) do
   create_table "room_reservations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "room_id", null: false
     t.bigint "user_id", null: false
@@ -26,7 +26,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_11_042715) do
   create_table "rooms", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.text "description"
     t.integer "capacity", null: false
-    t.decimal "price_per_night", precision: 10, null: false
+    t.decimal "price_per_night", precision: 10, scale: 2, null: false
     t.integer "lock_version", default: 0, null: false
     t.integer "reservation_count", default: 0, null: false
     t.datetime "created_at", null: false
