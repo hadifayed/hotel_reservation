@@ -1,5 +1,5 @@
 class RoomReservation < ApplicationRecord
-  enum status: { pending: 1, canceled: 2 }
+  enum status: [:pending, :canceled]
 
   belongs_to :room
   belongs_to :user

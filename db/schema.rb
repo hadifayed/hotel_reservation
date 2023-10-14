@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_13_141724) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_14_130807) do
   create_table "room_reservations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "room_id", null: false
     t.bigint "user_id", null: false
     t.date "check_in", null: false
     t.date "check_out", null: false
-    t.integer "status", default: 1, null: false
+    t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["room_id"], name: "index_room_reservations_on_room_id"
