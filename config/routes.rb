@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  mount Rswag::Ui::Engine => '/api-docs'
+  mount Rswag::Api::Engine => '/api-docs'
   mount_devise_token_auth_for 'User', at: 'auth', skip: [:sessions, :password, :registration]
   devise_scope :user do
     resource :session, only: [], path: 'auth', controller: 'sessions', as: :user_session do
