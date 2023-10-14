@@ -34,6 +34,33 @@ paths:
               - email
               - password
               - name
+  "/auth/sign_in":
+    post:
+      summary: create session
+      tags:
+      - Users Authentication
+      parameters: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: invalid login credentials
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: hadi@test.com
+                  description: my description
+                password:
+                  type: string
+                  example: hadi1234
+              required:
+              - email
+              - password
 servers:
 - url: http://{defaultHost}
   variables:
