@@ -27,7 +27,7 @@ class RoomReservationsController < ApplicationController
     render json: current_user.room_reservations.within_range(range_parser_service.range)
   end
 
-  # POST /room_reservations/:id/cancel
+  # PATCH /room_reservations/:id/cancel
   def cancel
     @reservation = current_user.room_reservations.find_by(id: params[:id])
     if @reservation

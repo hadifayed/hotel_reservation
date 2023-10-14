@@ -12,7 +12,7 @@ Rails.application.routes.draw do
       get :within_range
     end
     member do
-      post :cancel
+      patch :cancel
     end
   end
 end
