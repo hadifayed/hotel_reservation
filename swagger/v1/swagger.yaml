@@ -1,0 +1,41 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/auth":
+    post:
+      summary: create user
+      tags:
+      - Users Creation
+      parameters: []
+      responses:
+        '200':
+          description: Successful creation
+        '422':
+          description: Unsuccessful creation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: hadi@test.com
+                password:
+                  type: string
+                  example: hadi1234
+                name:
+                  type: string
+                  example: Hadi
+              required:
+              - email
+              - password
+              - name
+servers:
+- url: http://{defaultHost}
+  variables:
+    defaultHost:
+      default: localhost:3000
