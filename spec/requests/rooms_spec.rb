@@ -15,25 +15,10 @@ RSpec.describe 'rooms', type: :request do
 
       tags "Room index"
       consumes 'application/json'
-      parameter name: 'access-token', in: :header, type: :string, required: true,
-                description: 'can be optained from the headers response of the sign-in action'
-      parameter name: 'token-type', in: :header, type: :string, required: true,
-                description: 'can be optained from the headers response of the sign-in action'
-      parameter name: 'client', in: :header, type: :string, required: true,
-                description: 'can be optained from the headers response of the sign-in action'
-      parameter name: 'expiry', in: :header, type: :string, required: true,
-                description: 'can be optained from the headers response of the sign-in action'
-      parameter name: 'uid', in: :header, type: :string, required: true,
-                description: 'can be optained from the headers response of the sign-in action'
-      parameter name: 'Authorization', in: :header, type: :string, required: true,
-                description: 'can be optained from the headers response of the sign-in action'
+      include_context 'authentication_params'
 
       response(200, 'Successful when user is signed-in') do
-        user = FactoryBot.create(:user)
-        authorization = user.create_new_auth_token
-        authorization.each do |key, value|
-          let(key) { value }
-        end
+        include_context 'user signed_in successfully'
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -42,38 +27,17 @@ RSpec.describe 'rooms', type: :request do
       end
 
       response(401, 'Un-authorized when no user is signed-in') do
-        invalid_user_token = { 'access-token' => '',
-                               'token-type' => '',
-                               'client' => '',
-                               'expiry' => '',
-                               'uid' => '',
-                               'Authorization' => '' }
-        invalid_user_token.each do |key, value|
-          let(key) { value }
-        end
+        include_context 'no user is signed_in'
 
-        run_test! do |response|
-          data = JSON.parse(response.body)
-          expect(data['errors']).to eq(["You need to sign in or sign up before continuing."])
-        end
+        it_behaves_like 'unauthenticated_user'
       end
     end
 
     post('create room') do
       tags "Room Creation"
       consumes 'application/json'
-      parameter name: 'access-token', in: :header, type: :string, required: true,
-                description: 'can be optained from the headers response of the sign-in action'
-      parameter name: 'token-type', in: :header, type: :string, required: true,
-                description: 'can be optained from the headers response of the sign-in action'
-      parameter name: 'client', in: :header, type: :string, required: true,
-                description: 'can be optained from the headers response of the sign-in action'
-      parameter name: 'expiry', in: :header, type: :string, required: true,
-                description: 'can be optained from the headers response of the sign-in action'
-      parameter name: 'uid', in: :header, type: :string, required: true,
-                description: 'can be optained from the headers response of the sign-in action'
-      parameter name: 'Authorization', in: :header, type: :string, required: true,
-                description: 'can be optained from the headers response of the sign-in action'
+      include_context 'authentication_params'
+
       parameter name: :room, in: :body, schema: {
         type: :object,
         properties: {
@@ -86,11 +50,8 @@ RSpec.describe 'rooms', type: :request do
           
 
       response(201, 'Successful creation') do
-        user = FactoryBot.create(:user)
-        authorization = user.create_new_auth_token
-        authorization.each do |key, value|
-          let(key) { value }
-        end
+        include_context 'user signed_in successfully'
+
         let(:room) { valid_room_params }
 
         run_test! do |response|
@@ -101,11 +62,8 @@ RSpec.describe 'rooms', type: :request do
       end
 
       response(422, 'Creation fails on invalid parameters') do
-        user = FactoryBot.create(:user)
-        authorization = user.create_new_auth_token
-        authorization.each do |key, value|
-          let(key) { value }
-        end
+        include_context 'user signed_in successfully'
+
         let(:room) { invalid_room_params }
 
         run_test! do |response|
@@ -118,38 +76,18 @@ RSpec.describe 'rooms', type: :request do
 
 
       response(401, 'Un-authorized when no user is signed-in') do
-        invalid_user_token = { 'access-token' => '',
-                               'token-type' => '',
-                               'client' => '',
-                               'expiry' => '',
-                               'uid' => '',
-                               'Authorization' => '' }
-        invalid_user_token.each do |key, value|
-          let(key) { value }
-        end
+        include_context 'no user is signed_in'
+
         let(:room) { valid_room_params }
 
-        run_test! do |response|
-          data = JSON.parse(response.body)
-          expect(data['errors']).to eq(["You need to sign in or sign up before continuing."])
-        end
+        it_behaves_like 'unauthenticated_user'
       end
     end
   end
 
   path '/rooms/{id}' do
-    parameter name: 'access-token', in: :header, type: :string, required: true,
-              description: 'can be optained from the headers response of the sign-in action'
-    parameter name: 'token-type', in: :header, type: :string, required: true,
-              description: 'can be optained from the headers response of the sign-in action'
-    parameter name: 'client', in: :header, type: :string, required: true,
-              description: 'can be optained from the headers response of the sign-in action'
-    parameter name: 'expiry', in: :header, type: :string, required: true,
-              description: 'can be optained from the headers response of the sign-in action'
-    parameter name: 'uid', in: :header, type: :string, required: true,
-              description: 'can be optained from the headers response of the sign-in action'
-    parameter name: 'Authorization', in: :header, type: :string, required: true,
-              description: 'can be optained from the headers response of the sign-in action'
+    include_context 'authentication_params'
+
     parameter name: 'id', in: :path, type: :string, description: 'Room ID'
     parameter name: :room, in: :body, schema: {
       type: :object,
@@ -169,12 +107,9 @@ RSpec.describe 'rooms', type: :request do
       consumes 'application/json'
 
       response(200, 'successful') do
+        include_context 'user signed_in successfully'
+
         let(:id) { @room.id }
-        user = FactoryBot.create(:user)
-        authorization = user.create_new_auth_token
-        authorization.each do |key, value|
-          let(key) { value }
-        end
         let(:room) { { description: 'my new description' } }
 
         run_test! do |response|
@@ -185,12 +120,9 @@ RSpec.describe 'rooms', type: :request do
       end
 
       response(422, 'Unsucessful due to invalid parameters') do
+        include_context 'user signed_in successfully'
+
         let(:id) { @room.id }
-        user = FactoryBot.create(:user)
-        authorization = user.create_new_auth_token
-        authorization.each do |key, value|
-          let(key) { value }
-        end
         let(:room) { { capacity: nil } }
 
         run_test! do |response|
@@ -201,31 +133,18 @@ RSpec.describe 'rooms', type: :request do
       end
 
       response(401, 'Un-authorized when no user is signed-in') do
+        include_context 'no user is signed_in'
+
         let(:id) { @room.id }
-        invalid_user_token = { 'access-token' => '',
-                               'token-type' => '',
-                               'client' => '',
-                               'expiry' => '',
-                               'uid' => '',
-                               'Authorization' => '' }
-        invalid_user_token.each do |key, value|
-          let(key) { value }
-        end
         let(:room) { valid_room_params }
 
-        run_test! do |response|
-          data = JSON.parse(response.body)
-          expect(data['errors']).to eq(["You need to sign in or sign up before continuing."])
-        end
+        it_behaves_like 'unauthenticated_user'
       end
 
       response(404, 'Not-found when sending room id that does not exist') do
+        include_context 'user signed_in successfully'
+
         let(:id) { 'hey' }
-        user = FactoryBot.create(:user)
-        authorization = user.create_new_auth_token
-        authorization.each do |key, value|
-          let(key) { value }
-        end
         let(:room) { valid_room_params }
 
         run_test! do |response|
@@ -240,12 +159,9 @@ RSpec.describe 'rooms', type: :request do
       consumes 'application/json'
 
       response(200, 'successful') do
+        include_context 'user signed_in successfully'
+
         let(:id) { @room.id }
-        user = FactoryBot.create(:user)
-        authorization = user.create_new_auth_token
-        authorization.each do |key, value|
-          let(key) { value }
-        end
         let(:room) { { description: 'my all brand new description' } }
 
         run_test! do |response|
