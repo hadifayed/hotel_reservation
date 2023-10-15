@@ -12,7 +12,8 @@ RSpec.describe 'room_reservations', type: :request do
       type: :object,
       properties: {
         'room_reservation[check_in]' => { type: :string, example: '01-01-2023' },
-        'room_reservation[check_out]' => { type: :string, example: '01-01-2023' }
+        'room_reservation[check_out]' => { type: :string, example: '01-01-2023' },
+        'room_reservation[user_id]' => { type: :integer, example: 1 }
       }
     }
 
@@ -20,18 +21,36 @@ RSpec.describe 'room_reservations', type: :request do
       tags 'Reservations Within range'
       consumes 'application/json'
   
-      response(200, 'Successful') do
-        include_context 'Guest user signed_in successfully'
+      response(200, 'Successful (admin fetches for any user and user fetches his reservations only)') do
+        context 'Guest user fetches his reservations' do
+          include_context 'Guest user signed_in successfully'
 
-        room_reservations = FactoryBot.create_list(:room_reservation, 3, user: @user,
-                                                                         check_in: (Date.current + 1.days).to_s,
-                                                                         check_out: (Date.current + 3.days).to_s)
-        let(:room_reservation) { { room_reservation: { check_in: (Date.current + 1.days).to_s,
-                                                       check_out: (Date.current + 3.days).to_s } } }
+          room_reservations = FactoryBot.create_list(:room_reservation, 3, user: @user,
+                                                                           check_in: (Date.current + 1.days).to_s,
+                                                                           check_out: (Date.current + 3.days).to_s)
+          let(:room_reservation) { { room_reservation: { check_in: (Date.current + 1.days).to_s,
+                                                         check_out: (Date.current + 3.days).to_s } } }
+  
+          run_test! do |response|
+            data = JSON.parse(response.body)
+            expect(data.count).to eq(3)
+          end  
+        end
 
-        run_test! do |response|
-          data = JSON.parse(response.body)
-          expect(data.count).to eq(3)
+        context 'Admin user fetches other user reservations' do
+          include_context 'Admin user signed_in successfully'
+
+          user_to_create_reservations_for = FactoryBot.create(:user)
+          room_reservations = FactoryBot.create_list(:room_reservation, 3, user: user_to_create_reservations_for,
+                                                                           check_in: (Date.current + 1.days).to_s,
+                                                                           check_out: (Date.current + 3.days).to_s)
+          let(:room_reservation) { { room_reservation: { check_in: (Date.current + 1.days).to_s,
+                                                         check_out: (Date.current + 3.days).to_s,
+                                                         user_id: user_to_create_reservations_for.id } } }
+          run_test! do |response|
+            data = JSON.parse(response.body)
+            expect(data.count).to eq(3)
+          end  
         end
       end
 
@@ -41,6 +60,29 @@ RSpec.describe 'room_reservations', type: :request do
         let(:room_reservation) { { room_reservation: { check_in: '01-01-2024', check_out: '10-01-2024' } } }
 
         it_behaves_like 'unauthenticated_user'
+      end
+
+      response(403, 'Un-authorized when signed-in guest user tries to cancel other user reservation') do
+        include_context 'Guest user signed_in successfully'
+
+        room_reservation = FactoryBot.create(:room_reservation)
+        let(:room_reservation) { { room_reservation: { check_in: '01-01-2024',
+                                                       check_out: '10-01-2024',
+                                                       user_id: room_reservation.user_id } } }
+        it_behaves_like 'unauthorized_user'
+      end
+
+      response(404, 'not-found whena trial to fetch reservation for user that does not exist') do
+        include_context 'Admin user signed_in successfully'
+
+        let(:room_reservation) { { room_reservation: { check_in: (Date.current + 1.days).to_s,
+                                                       check_out: (Date.current + 3.days).to_s,
+                                                       user_id: 'hey' } } }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data).to include('No user record was found with given ID')
+        end
       end
 
       response(400, 'Bad request when given invalid format for check-in, check-out or both') do

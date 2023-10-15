@@ -83,15 +83,25 @@ paths:
           room_reservation[check_out]:
             type: string
             example: 01-01-2023
+          room_reservation[user_id]:
+            type: integer
+            example: 1
     get:
       summary: within_range room_reservation
       tags:
       - Reservations Within range
       responses:
         '200':
-          description: Successful
+          description: Successful (admin fetches for any user and user fetches his
+            reservations only)
         '401':
           description: Un-authenticated when no user is signed-in
+        '403':
+          description: Un-authorized when signed-in guest user tries to cancel other
+            user reservation
+        '404':
+          description: not-found whena trial to fetch reservation for user that does
+            not exist
         '400':
           description: Bad request when given invalid format for check-in, check-out
             or both
@@ -142,15 +152,15 @@ paths:
     patch:
       summary: cancel room_reservation
       tags:
-      - Cancel specific Room Reservation (must be authenticated user's reservation)
+      - Cancel specific Room Reservation
       responses:
         '200':
-          description: Successful cancelation
+          description: Successful cancelation (admin cancel any reservation and guest
+            user can cancel his own only)
         '401':
           description: Un-authenticated when no user is signed-in
-        '400':
-          description: Bad request when user sends reservation id that does not belong
-            to them
+        '404':
+          description: Not found when wrong reservation id is sent
   "/room_reservations":
     parameters:
     - name: access-token

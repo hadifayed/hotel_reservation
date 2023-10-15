@@ -18,13 +18,18 @@ class RoomReservationsController < ApplicationController
 
   # GET /room_reservations/within_range
   def within_range
+    if room_reservation_params[:user_id].present?
+      user_to_fetch_reservation = User.find(room_reservation_params[:user_id])
+    else
+      user_to_fetch_reservation = current_user
+    end
+    authorize! :within_range, user_to_fetch_reservation
     range_parser_service = RangeParserService.new(room_reservation_params)
     unless range_parser_service.parse_range
       render json: [I18n.t('room_reservation.invalid_range')], status: :bad_request
       return
     end
-
-    render json: current_user.room_reservations.within_range(range_parser_service.range)
+    render json: user_to_fetch_reservation.room_reservations.within_range(range_parser_service.range)
   end
 
   # PATCH /room_reservations/:id/cancel
@@ -42,7 +47,7 @@ class RoomReservationsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def room_reservation_params
-    params.require(:room_reservation).permit(:room_id, :check_in, :check_out)
+    params.require(:room_reservation).permit(:room_id, :check_in, :check_out, :user_id)
   end
 
   def current_ability
