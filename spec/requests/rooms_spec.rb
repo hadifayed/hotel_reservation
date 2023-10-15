@@ -26,7 +26,7 @@ RSpec.describe 'rooms', type: :request do
         end
       end
 
-      response(401, 'Un-authorized when no user is signed-in') do
+      response(401, 'Un-authenticated when no user is signed-in') do
         include_context 'no user is signed_in'
 
         it_behaves_like 'unauthenticated_user'
@@ -75,7 +75,7 @@ RSpec.describe 'rooms', type: :request do
       end
 
 
-      response(401, 'Un-authorized when no user is signed-in') do
+      response(401, 'Un-authenticated when no user is signed-in') do
         include_context 'no user is signed_in'
 
         let(:room) { valid_room_params }
@@ -132,7 +132,7 @@ RSpec.describe 'rooms', type: :request do
         end
       end
 
-      response(401, 'Un-authorized when no user is signed-in') do
+      response(401, 'Un-authenticated when no user is signed-in') do
         include_context 'no user is signed_in'
 
         let(:id) { @room.id }
