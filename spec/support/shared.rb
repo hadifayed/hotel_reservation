@@ -14,8 +14,16 @@ module Shared
               description: 'can be optained from the headers response of the sign-in action'
   end
 
-  shared_context 'user signed_in successfully' do
+  shared_context 'Guest user signed_in successfully' do
     @user = FactoryBot.create(:user)
+    authorization = @user.create_new_auth_token
+    authorization.each do |key, value|
+      let(key) { value }
+    end
+  end
+
+  shared_context 'Admin user signed_in successfully' do
+    @user = FactoryBot.create(:user, role: User.roles[:admin])
     authorization = @user.create_new_auth_token
     authorization.each do |key, value|
       let(key) { value }
@@ -37,7 +45,14 @@ module Shared
   shared_examples 'unauthenticated_user' do
     run_test! do |response|
       data = JSON.parse(response.body)
-      expect(data['errors']).to eq(["You need to sign in or sign up before continuing."])
+      expect(data['errors']).to eq(['You need to sign in or sign up before continuing.'])
+    end
+  end
+
+  shared_examples 'unauthorized_user' do
+    run_test! do |response|
+      data = JSON.parse(response.body)
+      expect(data).to eq(['You are not authorized to perform this action'])
     end
   end
 end

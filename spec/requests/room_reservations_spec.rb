@@ -21,7 +21,7 @@ RSpec.describe 'room_reservations', type: :request do
       consumes 'application/json'
   
       response(200, 'Successful') do
-        include_context 'user signed_in successfully'
+        include_context 'Guest user signed_in successfully'
 
         room_reservations = FactoryBot.create_list(:room_reservation, 3, user: @user,
                                                                          check_in: (Date.current + 1.days).to_s,
@@ -44,7 +44,7 @@ RSpec.describe 'room_reservations', type: :request do
       end
 
       response(400, 'Bad request when given invalid format for check-in, check-out or both') do
-        include_context 'user signed_in successfully'
+        include_context 'Guest user signed_in successfully'
 
         context 'invalid check-in format' do
           let(:room_reservation) { { room_reservation: { check_in: 'wrong', check_out: '10-01-2024' } } }
@@ -86,7 +86,7 @@ RSpec.describe 'room_reservations', type: :request do
       consumes 'application/json'
   
       response(200, 'Successful cancelation') do
-        include_context 'user signed_in successfully'
+        include_context 'Guest user signed_in successfully'
 
         RoomReservation.find_by(id: 1111)&.destroy
         FactoryBot.create(:room_reservation, id: 1111, user: @user, status: RoomReservation.statuses[:pending])
@@ -109,7 +109,7 @@ RSpec.describe 'room_reservations', type: :request do
       end
 
       response(400, 'Bad request when user sends reservation id that does not belong to them') do
-        include_context 'user signed_in successfully'
+        include_context 'Guest user signed_in successfully'
 
         RoomReservation.find_by(id: 2222)&.destroy
         FactoryBot.create(:room_reservation, id: 2222, status: RoomReservation.statuses[:pending])
@@ -148,7 +148,7 @@ RSpec.describe 'room_reservations', type: :request do
       end
 
       response(201, 'Successful creation') do
-        include_context 'user signed_in successfully'
+        include_context 'Guest user signed_in successfully'
 
         let(:room_reservation) { valid_room_reservation_params }
 
@@ -161,7 +161,7 @@ RSpec.describe 'room_reservations', type: :request do
 
       response(422, 'Creation failed due to invalid params') do
         context "when check_in field is missing" do
-          include_context 'user signed_in successfully'
+          include_context 'Guest user signed_in successfully'
 
           let(:room_reservation) { { check_out: "#{Date.current + 3.days}", room_id: 3333 } }
           run_test! do |response|
@@ -171,7 +171,7 @@ RSpec.describe 'room_reservations', type: :request do
         end
 
         context "when check_out field is missing" do
-          include_context 'user signed_in successfully'
+          include_context 'Guest user signed_in successfully'
 
           let(:room_reservation) { { check_in: "#{Date.current + 3.days}", room_id: 3333 } }
           run_test! do |response|
@@ -181,7 +181,7 @@ RSpec.describe 'room_reservations', type: :request do
         end
 
         context "when room_id field is missing" do
-          include_context 'user signed_in successfully'
+          include_context 'Guest user signed_in successfully'
 
           let(:room_reservation) { { check_in: "#{Date.current + 1.days}", check_out: "#{Date.current + 3.days}" } }
           run_test! do |response|
@@ -191,7 +191,7 @@ RSpec.describe 'room_reservations', type: :request do
         end
 
         context "when given wrong room_id field" do
-          include_context 'user signed_in successfully'
+          include_context 'Guest user signed_in successfully'
 
           let(:room_reservation) { { check_in: "#{Date.current + 1.days}", check_out: "#{Date.current + 3.days}", room_id: 'hey' } }
           run_test! do |response|
@@ -201,7 +201,7 @@ RSpec.describe 'room_reservations', type: :request do
         end
 
         context "when check_in and check_out are in the past" do
-          include_context 'user signed_in successfully'
+          include_context 'Guest user signed_in successfully'
 
           let(:room_reservation) { { check_in: "#{Date.current - 3.days}", check_out: "#{Date.current - 1.days}", room_id: 3333 } }
           run_test! do |response|
@@ -212,7 +212,7 @@ RSpec.describe 'room_reservations', type: :request do
         end
 
         context "when check_in is after check_out" do
-          include_context 'user signed_in successfully'
+          include_context 'Guest user signed_in successfully'
 
           let(:room_reservation) { { check_in: "#{Date.current + 3.days}", check_out: "#{Date.current + 1.days}", room_id: 3333 } }
           run_test! do |response|
@@ -222,7 +222,7 @@ RSpec.describe 'room_reservations', type: :request do
         end
 
         context "when room is already booked in the requested period" do
-          include_context 'user signed_in successfully'
+          include_context 'Guest user signed_in successfully'
           room_reservation = FactoryBot.create(:room_reservation)
           params = { check_in: room_reservation.check_in.to_s,
                      check_out: room_reservation.check_out.to_s,

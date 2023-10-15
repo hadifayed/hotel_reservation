@@ -18,7 +18,7 @@ RSpec.describe 'rooms', type: :request do
       consumes 'application/json'
 
       response(200, 'Successful when user is signed-in') do
-        include_context 'user signed_in successfully'
+        include_context 'Guest user signed_in successfully'
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -47,8 +47,8 @@ RSpec.describe 'rooms', type: :request do
         required: ['capacity', 'price_per_night']
       }
 
-      response(201, 'Successful creation') do
-        include_context 'user signed_in successfully'
+      response(201, 'Successful creation only when admin user is signed in') do
+        include_context 'Admin user signed_in successfully'
 
         let(:room) { valid_room_params }
 
@@ -59,8 +59,8 @@ RSpec.describe 'rooms', type: :request do
         end
       end
 
-      response(422, 'Creation fails on invalid parameters') do
-        include_context 'user signed_in successfully'
+      response(422, 'Creation fails on invalid parameters sent by admin user') do
+        include_context 'Admin user signed_in successfully'
 
         let(:room) { invalid_room_params }
 
@@ -79,6 +79,14 @@ RSpec.describe 'rooms', type: :request do
         let(:room) { valid_room_params }
 
         it_behaves_like 'unauthenticated_user'
+      end
+
+      response(403, 'Un-authorized when guest user is signed-in') do
+        include_context 'Guest user signed_in successfully'
+
+        let(:room) { valid_room_params }
+
+        it_behaves_like 'unauthorized_user'
       end
     end
   end
@@ -104,8 +112,8 @@ RSpec.describe 'rooms', type: :request do
       tags "Room patch Update"
       consumes 'application/json'
 
-      response(200, 'successful') do
-        include_context 'user signed_in successfully'
+      response(200, 'successful update only when admin user is signed-in') do
+        include_context 'Admin user signed_in successfully'
 
         let(:id) { @room.id }
         let(:room) { { description: 'my new description' } }
@@ -117,8 +125,8 @@ RSpec.describe 'rooms', type: :request do
         end
       end
 
-      response(422, 'Unsucessful due to invalid parameters') do
-        include_context 'user signed_in successfully'
+      response(422, 'Unsucessful due to invalid parameters sent by admin user') do
+        include_context 'Admin user signed_in successfully'
 
         let(:id) { @room.id }
         let(:room) { { capacity: nil } }
@@ -140,7 +148,7 @@ RSpec.describe 'rooms', type: :request do
       end
 
       response(404, 'Not-found when sending room id that does not exist') do
-        include_context 'user signed_in successfully'
+        include_context 'Guest user signed_in successfully'
 
         let(:id) { 'hey' }
         let(:room) { valid_room_params }
@@ -150,6 +158,15 @@ RSpec.describe 'rooms', type: :request do
           expect(data).to include('No record was found with given ID')
         end
       end
+
+      response(403, 'Un-authorized when guest user is signed-in') do
+        include_context 'Guest user signed_in successfully'
+
+        let(:id) { @room.id }
+        let(:room) { valid_room_params }
+
+        it_behaves_like 'unauthorized_user'
+      end
     end
 
     put('update room') do
@@ -157,7 +174,7 @@ RSpec.describe 'rooms', type: :request do
       consumes 'application/json'
 
       response(200, 'successful') do
-        include_context 'user signed_in successfully'
+        include_context 'Admin user signed_in successfully'
 
         let(:id) { @room.id }
         let(:room) { { description: 'my all brand new description' } }

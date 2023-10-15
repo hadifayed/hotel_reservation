@@ -275,11 +275,13 @@ paths:
       parameters: []
       responses:
         '201':
-          description: Successful creation
+          description: Successful creation only when admin user is signed in
         '422':
-          description: Creation fails on invalid parameters
+          description: Creation fails on invalid parameters sent by admin user
         '401':
           description: Un-authenticated when no user is signed-in
+        '403':
+          description: Un-authorized when guest user is signed-in
       requestBody:
         content:
           application/json:
@@ -362,13 +364,15 @@ paths:
       - Room patch Update
       responses:
         '200':
-          description: successful
+          description: successful update only when admin user is signed-in
         '422':
-          description: Unsucessful due to invalid parameters
+          description: Unsucessful due to invalid parameters sent by admin user
         '401':
           description: Un-authenticated when no user is signed-in
         '404':
           description: Not-found when sending room id that does not exist
+        '403':
+          description: Un-authorized when guest user is signed-in
     put:
       summary: update room
       tags:
