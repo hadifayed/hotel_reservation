@@ -35,6 +35,8 @@ en:
     reservation_not_found: 'No reservation found with this id'
     invalid_range: 'Invalid range when parsing check_in and check_out'
   activerecord:
+    models:
+      room_reservation: 'room reservation'
     attributes:
       room_reservation:
         check_out: 'Check-out'

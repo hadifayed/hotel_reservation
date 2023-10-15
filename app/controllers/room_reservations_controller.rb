@@ -29,15 +29,12 @@ class RoomReservationsController < ApplicationController
 
   # PATCH /room_reservations/:id/cancel
   def cancel
-    @reservation = current_user.room_reservations.find_by(id: params[:id])
-    if @reservation
-      if @reservation.update(status: RoomReservation.statuses[:canceled])
-        render json: @reservation, status: :ok
-      else
-        render json: @reservation.errors, status: :unprocessable_entity
-      end
+    @reservation = RoomReservation.find(params[:id])
+    authorize! :cancel, @reservation
+    if @reservation.update(status: RoomReservation.statuses[:canceled])
+      render json: @reservation, status: :ok
     else
-      render json: [I18n.t('room_reservation.reservation_not_found')], status: :bad_request
+      render json: @reservation.errors, status: :unprocessable_entity
     end
   end
 
@@ -46,5 +43,9 @@ class RoomReservationsController < ApplicationController
   # Only allow a list of trusted parameters through.
   def room_reservation_params
     params.require(:room_reservation).permit(:room_id, :check_in, :check_out)
+  end
+
+  def current_ability
+    @current_ability ||= RoomReservationAbility.new(current_user)
   end
 end

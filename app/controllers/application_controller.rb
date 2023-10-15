@@ -5,7 +5,8 @@ class ApplicationController < ActionController::API
   rescue_from CanCan::AccessDenied, with: :render_unauthorized
 
 	def render_record_not_found(exception)
-    render json: [I18n.t('general_errors.not_found', model: exception.model.downcase)], status: :not_found
+    model = exception.model.constantize.model_name.human.downcase
+    render json: [I18n.t('general_errors.not_found', model: model)], status: :not_found
 	end
 
   def render_unauthorized

@@ -82,21 +82,38 @@ RSpec.describe 'room_reservations', type: :request do
     parameter name: 'id', in: :path, type: :string, description: 'RoomReservation ID'
 
     patch('cancel room_reservation') do
-      tags "Cancel specific Room Reservation (must be authenticated user's reservation)"
+      tags "Cancel specific Room Reservation"
       consumes 'application/json'
   
-      response(200, 'Successful cancelation') do
-        include_context 'Guest user signed_in successfully'
+      response(200, 'Successful cancelation (admin cancel any reservation and guest user can cancel his own only)') do
+        context 'Guest user cancels his own reservation' do
+          include_context 'Guest user signed_in successfully'
 
-        RoomReservation.find_by(id: 1111)&.destroy
-        FactoryBot.create(:room_reservation, id: 1111, user: @user, status: RoomReservation.statuses[:pending])
+          RoomReservation.find_by(id: 1111)&.destroy
+          FactoryBot.create(:room_reservation, id: 1111, user: @user, status: RoomReservation.statuses[:pending])
 
-        let(:id) { 1111 }
+          let(:id) { 1111 }
 
-        run_test! do |response|
-          data = JSON.parse(response.body)
-          expect(data['id']).to eq(1111)
-          expect(data['status']).to eq('canceled')
+          run_test! do |response|
+            data = JSON.parse(response.body)
+            expect(data['id']).to eq(1111)
+            expect(data['status']).to eq('canceled')
+          end
+        end
+
+        context "Admin user cancels other user's reservation" do
+          include_context 'Admin user signed_in successfully'
+
+          RoomReservation.find_by(id: 1112)&.destroy
+          FactoryBot.create(:room_reservation, id: 1112, status: RoomReservation.statuses[:pending])
+
+          let(:id) { 1112 }
+
+          run_test! do |response|
+            data = JSON.parse(response.body)
+            expect(data['id']).to eq(1112)
+            expect(data['status']).to eq('canceled')
+          end
         end
       end
 
@@ -108,17 +125,14 @@ RSpec.describe 'room_reservations', type: :request do
         it_behaves_like 'unauthenticated_user'
       end
 
-      response(400, 'Bad request when user sends reservation id that does not belong to them') do
+      response(404, 'Not found when wrong reservation id is sent') do
         include_context 'Guest user signed_in successfully'
 
-        RoomReservation.find_by(id: 2222)&.destroy
-        FactoryBot.create(:room_reservation, id: 2222, status: RoomReservation.statuses[:pending])
-
-        let(:id) { 2222 }
+        let(:id) { 'hey' }
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data).to include('No reservation found with this id')
+          expect(data).to include('No room reservation record was found with given ID')
         end
       end
     end
