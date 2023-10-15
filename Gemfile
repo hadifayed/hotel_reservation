@@ -48,6 +48,7 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'rswag'
   gem 'database_cleaner'
+  gem 'faker'
 end
 
 group :development do
