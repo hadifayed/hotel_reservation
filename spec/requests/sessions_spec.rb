@@ -10,7 +10,7 @@ RSpec.describe 'sessions', type: :request do
       parameter name: :user, in: :body, schema: {
         type: :object,
         properties: {
-          email: { type: :string, example: "hadi@test.com", description: 'my description' },
+          email: { type: :string, example: "hadi@test.com" },
           password: { type: :string, example: "hadi1234" },
         },
         required: ['email', 'password']

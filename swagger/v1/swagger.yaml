@@ -34,6 +34,198 @@ paths:
               - email
               - password
               - name
+  "/rooms":
+    get:
+      summary: list rooms
+      tags:
+      - Room index
+      parameters:
+      - name: access-token
+        in: header
+        required: true
+        description: can be optained from the headers response of the sign-in action
+        schema:
+          type: string
+      - name: token-type
+        in: header
+        required: true
+        description: can be optained from the headers response of the sign-in action
+        schema:
+          type: string
+      - name: client
+        in: header
+        required: true
+        description: can be optained from the headers response of the sign-in action
+        schema:
+          type: string
+      - name: expiry
+        in: header
+        required: true
+        description: can be optained from the headers response of the sign-in action
+        schema:
+          type: string
+      - name: uid
+        in: header
+        required: true
+        description: can be optained from the headers response of the sign-in action
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: can be optained from the headers response of the sign-in action
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful when user is signed-in
+        '401':
+          description: Un-authorized when no user is signed-in
+    post:
+      summary: create room
+      tags:
+      - Room Creation
+      parameters:
+      - name: access-token
+        in: header
+        required: true
+        description: can be optained from the headers response of the sign-in action
+        schema:
+          type: string
+      - name: token-type
+        in: header
+        required: true
+        description: can be optained from the headers response of the sign-in action
+        schema:
+          type: string
+      - name: client
+        in: header
+        required: true
+        description: can be optained from the headers response of the sign-in action
+        schema:
+          type: string
+      - name: expiry
+        in: header
+        required: true
+        description: can be optained from the headers response of the sign-in action
+        schema:
+          type: string
+      - name: uid
+        in: header
+        required: true
+        description: can be optained from the headers response of the sign-in action
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: can be optained from the headers response of the sign-in action
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Successful creation
+        '422':
+          description: Creation fails on invalid parameters
+        '401':
+          description: Un-authorized when no user is signed-in
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                capacity:
+                  type: integer
+                  example: 2
+                price_per_night:
+                  type: decimal
+                  example: 15.57
+                description:
+                  type: string
+                  example: Our most luxurious room
+              required:
+              - capacity
+              - price_per_night
+  "/rooms/{id}":
+    parameters:
+    - name: access-token
+      in: header
+      required: true
+      description: can be optained from the headers response of the sign-in action
+      schema:
+        type: string
+    - name: token-type
+      in: header
+      required: true
+      description: can be optained from the headers response of the sign-in action
+      schema:
+        type: string
+    - name: client
+      in: header
+      required: true
+      description: can be optained from the headers response of the sign-in action
+      schema:
+        type: string
+    - name: expiry
+      in: header
+      required: true
+      description: can be optained from the headers response of the sign-in action
+      schema:
+        type: string
+    - name: uid
+      in: header
+      required: true
+      description: can be optained from the headers response of the sign-in action
+      schema:
+        type: string
+    - name: Authorization
+      in: header
+      required: true
+      description: can be optained from the headers response of the sign-in action
+      schema:
+        type: string
+    - name: id
+      in: path
+      description: Room ID
+      required: true
+      schema:
+        type: string
+    - name: room
+      in: body
+      schema:
+        type: object
+        properties:
+          capacity:
+            type: integer
+            example: 2
+          price_per_night:
+            type: decimal
+            example: 15.57
+          description:
+            type: string
+            example: Our most luxurious room
+    patch:
+      summary: update room
+      tags:
+      - Room patch Update
+      responses:
+        '200':
+          description: successful
+        '422':
+          description: Unsucessful due to invalid parameters
+        '401':
+          description: Un-authorized when no user is signed-in
+        '404':
+          description: Not-found when sending room id that does not exist
+    put:
+      summary: update room
+      tags:
+      - Room put Update (just testing successful scenario as other scenarios are tested
+        in patch)
+      responses:
+        '200':
+          description: successful
   "/auth/sign_in":
     post:
       summary: create session
@@ -54,7 +246,6 @@ paths:
                 email:
                   type: string
                   example: hadi@test.com
-                  description: my description
                 password:
                   type: string
                   example: hadi1234
