@@ -155,7 +155,7 @@ RSpec.describe 'rooms', type: :request do
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data).to include('No record was found with given ID')
+          expect(data).to include('No room record was found with given ID')
         end
       end
 
