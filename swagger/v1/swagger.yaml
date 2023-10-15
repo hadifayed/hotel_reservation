@@ -97,7 +97,7 @@ paths:
         '401':
           description: Un-authenticated when no user is signed-in
         '403':
-          description: Un-authorized when signed-in guest user tries to cancel other
+          description: Un-authorized when signed-in guest user tries to fetch other
             user reservation
         '404':
           description: not-found whena trial to fetch reservation for user that does
@@ -161,6 +161,9 @@ paths:
           description: Un-authenticated when no user is signed-in
         '404':
           description: Not found when wrong reservation id is sent
+        '403':
+          description: Un-authorized when signed-in guest user tries to cancel other
+            user reservation
   "/room_reservations":
     parameters:
     - name: access-token

@@ -62,7 +62,7 @@ RSpec.describe 'room_reservations', type: :request do
         it_behaves_like 'unauthenticated_user'
       end
 
-      response(403, 'Un-authorized when signed-in guest user tries to cancel other user reservation') do
+      response(403, 'Un-authorized when signed-in guest user tries to fetch other user reservation') do
         include_context 'Guest user signed_in successfully'
 
         room_reservation = FactoryBot.create(:room_reservation)
@@ -177,6 +177,16 @@ RSpec.describe 'room_reservations', type: :request do
           expect(data).to include('No room reservation record was found with given ID')
         end
       end
+
+      response(403, 'Un-authorized when signed-in guest user tries to cancel other user reservation') do
+        include_context 'Guest user signed_in successfully'
+
+        room_reservation = FactoryBot.create(:room_reservation)
+        let(:id) { room_reservation.id }
+
+        it_behaves_like 'unauthorized_user'
+      end
+
     end
   end
 
