@@ -1,11 +1,16 @@
 class ApplicationController < ActionController::API
 	include DeviseTokenAuth::Concerns::SetUserByToken
 	before_action :configure_permitted_parameters, if: :devise_controller?
-	rescue_from ActiveRecord::RecordNotFound, :with => :record_not_found
+	rescue_from ActiveRecord::RecordNotFound, with: :render_record_not_found
+  rescue_from CanCan::AccessDenied, with: :render_unauthorized
 
-	def record_not_found
+	def render_record_not_found
     render json: [I18n.t('general_errors.not_found')], status: :not_found
 	end
+
+  def render_unauthorized
+    render json: [I18n.t('general_errors.unauthorized')], status: :forbidden    
+  end
 
 	protected
 
