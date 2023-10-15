@@ -6,6 +6,7 @@ RSpec.describe 'rooms', type: :request do
   let (:invalid_room_params) { { capacity: 'wrong_value' } }
 
   path '/rooms' do
+    include_context 'authentication_params'
 
     get('list rooms') do
       before :all do
@@ -15,7 +16,6 @@ RSpec.describe 'rooms', type: :request do
 
       tags "Room index"
       consumes 'application/json'
-      include_context 'authentication_params'
 
       response(200, 'Successful when user is signed-in') do
         include_context 'user signed_in successfully'
@@ -36,7 +36,6 @@ RSpec.describe 'rooms', type: :request do
     post('create room') do
       tags "Room Creation"
       consumes 'application/json'
-      include_context 'authentication_params'
 
       parameter name: :room, in: :body, schema: {
         type: :object,
@@ -47,7 +46,6 @@ RSpec.describe 'rooms', type: :request do
         },
         required: ['capacity', 'price_per_night']
       }
-          
 
       response(201, 'Successful creation') do
         include_context 'user signed_in successfully'
