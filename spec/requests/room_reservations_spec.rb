@@ -81,7 +81,7 @@ RSpec.describe 'room_reservations', type: :request do
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data).to include('No user record was found with given ID')
+          expect(data).to eq(['No user record was found with given ID'])
         end
       end
 
@@ -93,7 +93,7 @@ RSpec.describe 'room_reservations', type: :request do
 
           run_test! do |response|
             data = JSON.parse(response.body)
-            expect(data).to include('Invalid range when parsing check_in and check_out')
+            expect(data).to eq(['Invalid range when parsing check_in and check_out'])
           end
         end
 
@@ -102,7 +102,7 @@ RSpec.describe 'room_reservations', type: :request do
 
           run_test! do |response|
             data = JSON.parse(response.body)
-            expect(data).to include('Invalid range when parsing check_in and check_out')
+            expect(data).to eq(['Invalid range when parsing check_in and check_out'])
           end
         end
 
@@ -111,7 +111,7 @@ RSpec.describe 'room_reservations', type: :request do
 
           run_test! do |response|
             data = JSON.parse(response.body)
-            expect(data).to include('Invalid range when parsing check_in and check_out')
+            expect(data).to eq(['Invalid range when parsing check_in and check_out'])
           end
         end
       end
@@ -174,7 +174,7 @@ RSpec.describe 'room_reservations', type: :request do
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data).to include('No room reservation record was found with given ID')
+          expect(data).to eq(['No room reservation record was found with given ID'])
         end
       end
 
@@ -252,7 +252,7 @@ RSpec.describe 'room_reservations', type: :request do
           let(:room_reservation) { { check_out: "#{Date.current + 3.days}", room_id: 3333 } }
           run_test! do |response|
             data = JSON.parse(response.body)
-            expect(data).to include("Check-in can't be blank")
+            expect(data).to eq(["Check-in can't be blank"])
           end            
         end
 
@@ -262,8 +262,8 @@ RSpec.describe 'room_reservations', type: :request do
           let(:room_reservation) { { check_in: "#{Date.current + 3.days}", room_id: 3333 } }
           run_test! do |response|
             data = JSON.parse(response.body)
-            expect(data).to include("Check-out can't be blank")
-          end            
+            expect(data).to eq(["Check-out can't be blank"])
+          end
         end
 
         context "when check_in and check_out are in the past" do
@@ -283,7 +283,7 @@ RSpec.describe 'room_reservations', type: :request do
           let(:room_reservation) { { check_in: "#{Date.current + 3.days}", check_out: "#{Date.current + 1.days}", room_id: 3333 } }
           run_test! do |response|
             data = JSON.parse(response.body)
-            expect(data).to include("Check-out must be after the check-in")
+            expect(data).to eq(["Check-out must be after the check-in"])
           end            
         end
 
@@ -297,7 +297,7 @@ RSpec.describe 'room_reservations', type: :request do
           let(:room_reservation) { params }
           run_test! do |response|
             data = JSON.parse(response.body)
-            expect(data).to include("Room is not available in the requested period")
+            expect(data).to eq(["Room is not available in the requested period"])
           end
         end
       end
