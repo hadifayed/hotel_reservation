@@ -3,32 +3,32 @@ class RoomsController < ApplicationController
   
   # GET /rooms
   def index
-    @rooms = Room.all
+    rooms = Room.all
 
-    render json: @rooms
+    render json: rooms
   end
 
   # POST /rooms
   def create
-    @room = Room.new(room_params)
-    authorize! :create, @room
+    room = Room.new(room_params)
+    authorize! :create, room
 
-    if @room.save
-      render json: @room, status: :created, location: @room
+    if room.save
+      render json: room, status: :created, location: @room
     else
-      render json: @room.errors.full_messages, status: :unprocessable_entity
+      render json: room.errors.full_messages, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /rooms/1
   def update
-    @room = Room.find(params[:id])
-    authorize! :update, @room
+    room = Room.find(params[:id])
+    authorize! :update, room
 
-    if @room.update(room_params)
-      render json: @room
+    if room.update(room_params)
+      render json: room
     else
-      render json: @room.errors.full_messages, status: :unprocessable_entity
+      render json: room.errors.full_messages, status: :unprocessable_entity
     end
   end
 
