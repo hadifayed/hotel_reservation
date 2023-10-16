@@ -27,28 +27,28 @@ List of endpoint to use the app:
       that requires authentication [access-token, token-type, client, uid, expiry]
 
   3. List rooms GET /rooms requires authentication using request num 2
+      all users can list all rooms
       request headers {access-token: '', token-type: '', client: '', uid: '', expiry: ''}
 
   4. create room POST /rooms requires authentication using request num 2
+      only admins can create rooms
       request headers {access-token: '', token-type: '', client: '', uid: '', expiry: ''}
       request body { room: { price_per_night: DECIMAL, capacity: INTEGER. description: TEXT } }
 
   5. update room (PATCH/PUT) /rooms/:room_id requires authentication using request num 2
+      only admins can update rooms
       request headers {access-token: '', token-type: '', client: '', uid: '', expiry: ''}
       request body { room: { price_per_night: DECIMAL, capacity: INTEGER. description: TEXT } }
 
   6. create room_reservation POST /room_reservations requires authentication using request num 2
+      admin can create to any user but guest users can only create their own
       request headers {access-token: '', token-type: '', client: '', uid: '', expiry: ''}
       request body { room_reservation: { check_in: DATE, check_out: DATE. room_id: ROOM_REFERENCE } }
 
   7. list room_reservations for a specific period GET /room_reservations/within_range?room_reservation[check_in]=DATE&room_reservation[check_out]=date requires authentication using request num 2
+      admin can fetch reservations of any user but guest users can only fetch their own
       request headers {access-token: '', token-type: '', client: '', uid: '', expiry: ''}
 
   8. cancel room_reservation POST /room_reservations/:room_id/cancel requires authentication using request num 2
+      admin can cancel reservations of any user but guest users can only cancel their own 
       request body { room: { price_per_night: DECIMAL, capacity: INTEGER. description: TEXT } }
-
-Possible improvements :
-  1. add specs
-  2. use swagger to add api documentation
-  3. Add roles to user and allow only user with admin role to add and update rooms
-  4. add better logging
