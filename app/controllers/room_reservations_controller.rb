@@ -32,7 +32,7 @@ class RoomReservationsController < ApplicationController
   # PATCH /room_reservations/:id/cancel
   def cancel
     reservation = RoomReservation.find(params[:id])
-    authorize! :cancel, reservation
+    authorize! :cancel, reservation.user
     if reservation.update(status: RoomReservation.statuses[:canceled])
       render json: reservation, status: :ok
     else
