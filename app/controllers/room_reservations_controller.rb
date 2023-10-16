@@ -1,10 +1,12 @@
 class RoomReservationsController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_user, except: :cancel
 
   # POST /room_reservations
   def create
-    reservation_creation_service = CreateReservationService.new(Room.find_by(id: room_reservation_params[:room_id]),
-                                                                current_user,
+    authorize! :create, @user
+    reservation_creation_service = CreateReservationService.new(Room.find(room_reservation_params[:room_id]),
+                                                                @user,
                                                                 room_reservation_params[:check_in],
                                                                 room_reservation_params[:check_out])
     reservation_creation_service.create_reservation
@@ -18,28 +20,23 @@ class RoomReservationsController < ApplicationController
 
   # GET /room_reservations/within_range
   def within_range
-    if room_reservation_params[:user_id].present?
-      user_to_fetch_reservation = User.find(room_reservation_params[:user_id])
-    else
-      user_to_fetch_reservation = current_user
-    end
-    authorize! :within_range, user_to_fetch_reservation
+    authorize! :within_range, @user
     range_parser_service = RangeParserService.new(room_reservation_params)
     unless range_parser_service.parse_range
       render json: [I18n.t('room_reservation.invalid_range')], status: :bad_request
       return
     end
-    render json: user_to_fetch_reservation.room_reservations.within_range(range_parser_service.range)
+    render json: @user.room_reservations.within_range(range_parser_service.range)
   end
 
   # PATCH /room_reservations/:id/cancel
   def cancel
-    @reservation = RoomReservation.find(params[:id])
-    authorize! :cancel, @reservation
-    if @reservation.update(status: RoomReservation.statuses[:canceled])
-      render json: @reservation, status: :ok
+    reservation = RoomReservation.find(params[:id])
+    authorize! :cancel, reservation
+    if reservation.update(status: RoomReservation.statuses[:canceled])
+      render json: reservation, status: :ok
     else
-      render json: @reservation.errors, status: :unprocessable_entity
+      render json: reservation.errors, status: :unprocessable_entity
     end
   end
 
@@ -52,5 +49,13 @@ class RoomReservationsController < ApplicationController
 
   def current_ability
     @current_ability ||= RoomReservationAbility.new(current_user)
+  end
+
+  def set_user
+    if room_reservation_params[:user_id].present?
+      @user = User.find(room_reservation_params[:user_id])
+    else
+      @user = current_user
+    end
   end
 end

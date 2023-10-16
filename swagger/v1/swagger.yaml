@@ -209,11 +209,17 @@ paths:
       parameters: []
       responses:
         '201':
-          description: Successful creation
+          description: Successful creation (admin creates to any user and guest user
+            only creates his own)
         '422':
           description: Creation failed due to invalid params
         '401':
           description: Un-authenticated when no user is signed-in
+        '403':
+          description: Un-authorized when guest user tries to creates reservation
+            for another user
+        '404':
+          description: Not-found when given non-existing user_id or room_id
       requestBody:
         content:
           application/json:
@@ -230,6 +236,10 @@ paths:
                   type: integer
                   example: 1
                   description: reference to an already existing room
+                user_id:
+                  type: integer
+                  example: 1
+                  description: reference to an already existing user
               required:
               - check_in
               - check_out

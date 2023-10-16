@@ -202,7 +202,8 @@ RSpec.describe 'room_reservations', type: :request do
         properties: {
           check_in: { type: :string, example: '01-01-2023' },
           check_out: { type: :string, example: '10-01-2023' },
-          room_id: { type: :integer, example: 1, description: 'reference to an already existing room' }  
+          room_id: { type: :integer, example: 1, description: 'reference to an already existing room' },
+          user_id: { type: :integer, example: 1, description: 'reference to an already existing user' }
         },
         required: ['check_in', 'check_out', 'room_id']
       }
@@ -213,15 +214,34 @@ RSpec.describe 'room_reservations', type: :request do
         FactoryBot.create(:room, id: 3333)
       end
 
-      response(201, 'Successful creation') do
-        include_context 'Guest user signed_in successfully'
+      response(201, 'Successful creation (admin creates to any user and guest user only creates his own)') do
+        context 'Guest user create his own resertvation' do
+          include_context 'Guest user signed_in successfully'
 
-        let(:room_reservation) { valid_room_reservation_params }
+          let(:room_reservation) { valid_room_reservation_params }
+  
+          run_test! do |response|
+            data = JSON.parse(response.body)
+            expect(data['room_id']).to eq(3333)
+            expect(data['status']).to eq('pending')
+          end
+        end
 
-        run_test! do |response|
-          data = JSON.parse(response.body)
-          expect(data['room_id']).to eq(3333)
-          expect(data['status']).to eq('pending')
+        context 'Admin user creates for other users' do
+          include_context 'Admin user signed_in successfully'
+
+          user = FactoryBot.create(:user)
+
+          let (:room_reservation) do
+            { check_in: "#{Date.current + 10.days }", check_out: "#{Date.current + 13.days }",
+              room_id: 3333, user_id: user.id }
+          end
+
+          run_test! do |response|
+            data = JSON.parse(response.body)
+            expect(data['room_id']).to eq(3333)
+            expect(data['status']).to eq('pending')
+          end
         end
       end
 
@@ -243,26 +263,6 @@ RSpec.describe 'room_reservations', type: :request do
           run_test! do |response|
             data = JSON.parse(response.body)
             expect(data).to include("Check-out can't be blank")
-          end            
-        end
-
-        context "when room_id field is missing" do
-          include_context 'Guest user signed_in successfully'
-
-          let(:room_reservation) { { check_in: "#{Date.current + 1.days}", check_out: "#{Date.current + 3.days}" } }
-          run_test! do |response|
-            data = JSON.parse(response.body)
-            expect(data).to include("Room must exist")
-          end            
-        end
-
-        context "when given wrong room_id field" do
-          include_context 'Guest user signed_in successfully'
-
-          let(:room_reservation) { { check_in: "#{Date.current + 1.days}", check_out: "#{Date.current + 3.days}", room_id: 'hey' } }
-          run_test! do |response|
-            data = JSON.parse(response.body)
-            expect(data).to include("Room must exist")
           end            
         end
 
@@ -308,6 +308,51 @@ RSpec.describe 'room_reservations', type: :request do
         let(:room_reservation) {  { check_in: '01-01-2023', check_out: '01-01-2022', room_id: 1 } }
 
         it_behaves_like 'unauthenticated_user'
+      end
+
+      response(403, 'Un-authorized when guest user tries to creates reservation for another user') do
+        include_context 'Guest user signed_in successfully'
+
+        user = FactoryBot.create(:user)
+
+        let (:room_reservation) do
+          { check_in: "#{Date.current + 10.days }", check_out: "#{Date.current + 13.days }",
+            room_id: 3333, user_id: user.id }
+        end
+
+        it_behaves_like 'unauthorized_user'
+      end
+
+      response(404, 'Not-found when given non-existing user_id or room_id') do
+        context 'given non-existing room_id' do
+          include_context 'Admin user signed_in successfully'
+
+          user = FactoryBot.create(:user)
+
+          let (:room_reservation) do
+            { check_in: "#{Date.current + 10.days }", check_out: "#{Date.current + 13.days }",
+              room_id: 'hey', user_id: user.id }
+          end
+
+          run_test! do |response|
+            data = JSON.parse(response.body)
+            expect(data).to eq(['No room record was found with given ID'])
+          end
+        end
+
+        context 'given non-existing user_id' do
+          include_context 'Admin user signed_in successfully'
+
+          let (:room_reservation) do
+            { check_in: "#{Date.current + 10.days }", check_out: "#{Date.current + 13.days }",
+              room_id: 3333, user_id: 'hey' }
+          end
+
+          run_test! do |response|
+            data = JSON.parse(response.body)
+            expect(data).to eq(['No user record was found with given ID'])
+          end
+        end
       end
     end
   end
